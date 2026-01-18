@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: aucsafe
+
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/version: "1.0.0"
+
+resources:
+  # Namespace
+  - namespace.yaml
+
+  # Configuration
+  - configmap.yaml
+  - secret.yaml
+
+  # Persistent Volume Claims
+  - pvc.yaml
+
+  # Deployments
+  - deployments/frontend.yaml
+  - deployments/backend.yaml
+  - deployments/ai-service.yaml
+  - deployments/postgres.yaml
+  - deployments/redis.yaml
+
+  # Services
+  - services/frontend.yaml
+  - services/backend.yaml
+  - services/ai-service.yaml
+  - services/postgres.yaml
+  - services/redis.yaml
+
+  # Ingress
+  - ingress.yaml
+
+  # Autoscaling
+  - hpa.yaml

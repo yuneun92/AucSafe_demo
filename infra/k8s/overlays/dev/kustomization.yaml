@@ -1,0 +1,94 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: aucsafe-dev
+
+namePrefix: dev-
+
+commonLabels:
+  environment: development
+
+resources:
+  - ../../base
+
+patches:
+  # Reduce replicas for development
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+    target:
+      kind: Deployment
+      name: frontend
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+    target:
+      kind: Deployment
+      name: backend
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+    target:
+      kind: Deployment
+      name: ai-service
+
+  # Reduce resource limits for development
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "50m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "128Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "200m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "256Mi"
+    target:
+      kind: Deployment
+      name: frontend
+
+  # Disable HPA for development
+  - patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+      - op: replace
+        path: /spec/maxReplicas
+        value: 2
+    target:
+      kind: HorizontalPodAutoscaler
+
+  # Reduce PVC size for development
+  - patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: "5Gi"
+    target:
+      kind: PersistentVolumeClaim
+      name: postgres-pvc
+  - patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: "1Gi"
+    target:
+      kind: PersistentVolumeClaim
+      name: redis-pvc
+
+configMapGenerator:
+  - name: aucsafe-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=development
+      - DEBUG=true
+
+secretGenerator:
+  - name: aucsafe-secrets
+    behavior: merge
+    literals:
+      - JWT_SECRET_KEY=dev-secret-key-not-for-production

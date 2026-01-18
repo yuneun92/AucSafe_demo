@@ -1,0 +1,37 @@
+# AucSafe Code Owners
+# These owners will be automatically requested for review on PRs
+
+# Default owners for everything
+* @aucsafe/core-team
+
+# Frontend
+/app/ @aucsafe/frontend-team
+/components/ @aucsafe/frontend-team
+/hooks/ @aucsafe/frontend-team
+/lib/ @aucsafe/frontend-team
+/styles/ @aucsafe/frontend-team
+/public/ @aucsafe/frontend-team
+package.json @aucsafe/frontend-team
+next.config.mjs @aucsafe/frontend-team
+tsconfig.json @aucsafe/frontend-team
+tailwind.config.* @aucsafe/frontend-team
+
+# Backend
+/backend/ @aucsafe/backend-team
+
+# AI Service
+/ai-service/ @aucsafe/ai-team
+
+# Infrastructure
+/infra/ @aucsafe/devops-team
+/.github/ @aucsafe/devops-team
+docker-compose.yml @aucsafe/devops-team
+Dockerfile* @aucsafe/devops-team
+
+# Documentation
+/docs/ @aucsafe/core-team
+*.md @aucsafe/core-team
+
+# Security-sensitive files
+.env* @aucsafe/security-team @aucsafe/devops-team
+**/secret*.yaml @aucsafe/security-team @aucsafe/devops-team

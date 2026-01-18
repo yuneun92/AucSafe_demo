@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aucsafe-config
+  namespace: aucsafe
+  labels:
+    app.kubernetes.io/name: aucsafe
+    app.kubernetes.io/component: config
+data:
+  # Application Settings
+  PROJECT_NAME: "AucSafe API"
+  VERSION: "1.0.0"
+
+  # Server Settings
+  HOST: "0.0.0.0"
+  BACKEND_PORT: "8000"
+  AI_SERVICE_PORT: "8001"
+  FRONTEND_PORT: "3000"
+
+  # Database Settings
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "aucsafe"
+
+  # Redis Settings
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+
+  # JWT Settings
+  JWT_ALGORITHM: "HS256"
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+  JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+
+  # AI Service Settings
+  AI_SERVICE_URL: "http://ai-service:8001"
+
+  # AWS Settings
+  AWS_REGION: "ap-northeast-2"
+  S3_BUCKET_NAME: "aucsafe-uploads"

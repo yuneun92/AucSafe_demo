@@ -1,0 +1,55 @@
+# Persistent Volume Claims for AucSafe
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: aucsafe
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/part-of: aucsafe
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  # Use default StorageClass or specify one
+  # storageClassName: gp3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: aucsafe
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/part-of: aucsafe
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # Use default StorageClass or specify one
+  # storageClassName: gp3
+---
+# Optional: PVC for file uploads (if using local storage instead of S3)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: uploads-pvc
+  namespace: aucsafe
+  labels:
+    app.kubernetes.io/name: uploads
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/part-of: aucsafe
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  # storageClassName: efs-sc  # For AWS EFS
