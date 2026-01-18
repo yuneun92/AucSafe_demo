@@ -254,6 +254,105 @@ kubectl rollout undo deployment/prod-backend --to-revision=2 -n aucsafe-prod
 
 ---
 
+## GitHub Pages 배포 (데모)
+
+프론트엔드 데모 버전을 GitHub Pages로 배포합니다.
+
+### 배포 구조
+
+```
+Private Repo (yuneun92/Aucsafe)
+        │
+        │ main/dev 브랜치 push
+        ▼
+   GitHub Actions
+        │
+        │ npm run build (static export)
+        ▼
+Public Repo (yuneun92/AucSafe_demo)
+        │
+        │ GitHub Pages
+        ▼
+https://yuneun92.github.io/AucSafe_demo
+```
+
+### 설정 방법
+
+#### 1. GitHub Personal Access Token 생성
+
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. "Generate new token" 클릭
+3. 권한 선택: `repo` (전체)
+4. 토큰 생성 후 복사
+
+#### 2. Private Repo에 Secret 추가
+
+1. `yuneun92/Aucsafe` → Settings → Secrets and variables → Actions
+2. "New repository secret" 클릭
+3. Name: `DEPLOY_TOKEN`
+4. Value: 위에서 복사한 토큰
+
+#### 3. Public Repo에서 GitHub Pages 활성화
+
+1. `yuneun92/AucSafe_demo` → Settings → Pages
+2. Source: "Deploy from a branch"
+3. Branch: `main` / `/ (root)` 선택
+4. Save
+
+### 워크플로우 파일
+
+`.github/workflows/deploy.yml`:
+
+```yaml
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.DEPLOY_TOKEN }}
+          external_repository: yuneun92/AucSafe_demo
+          publish_branch: main
+          publish_dir: ./out
+```
+
+### Next.js 설정
+
+`next.config.mjs`에 static export 설정이 필요합니다:
+
+```javascript
+const nextConfig = {
+  output: 'export',
+  basePath: '/AucSafe_demo',
+  images: {
+    unoptimized: true,
+  },
+}
+```
+
+### 주의사항
+
+- GitHub Pages는 정적 파일만 호스팅하므로 API Routes는 사용 불가
+- 백엔드 API는 별도 서버에서 호스팅 필요
+- `basePath` 설정으로 인해 모든 경로가 `/AucSafe_demo`로 시작
+
+---
+
 ## CI/CD 파이프라인
 
 ### 워크플로우 개요
