@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -84,7 +84,7 @@ jobs:
       url: https://aucsafe.example.com
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
