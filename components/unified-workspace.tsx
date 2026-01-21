@@ -38,10 +38,40 @@ import { LandingPage } from "./landing-page"
 import { RegistryAnalysisPage } from "./registry-analysis-page"
 import { AIChatPage } from "./ai-chat-page"
 import { useTheme } from "next-themes"
-import { Moon, Sun, MessageSquare } from "lucide-react"
+import { Moon, Sun, MessageSquare, Gavel, Store, Banknote, HelpCircle, FileText, Map } from "lucide-react"
+
+// New page imports
+import { ServiceIntroPage, NoticesPage, NewAuctionsPage, UpcomingAuctionsPage } from "./home"
+import { AuctionCalendarPage, AuctionResultsPage, CourtSearchPage, LocationSearchPage, SpecialPropertiesPage } from "./auction"
+import { PublicSaleSearchPage, PublicSaleCalendarPage, PublicSaleResultsPage } from "./public-sale"
+import { CombinedSearchPage } from "./search"
+import { PublicSaleMapPage, CombinedMapPage } from "./map"
+import { NplSearchPage, NplExchangePage } from "./npl"
+import { RecentViewsPage, PaymentHistoryPage, CouponsPage } from "./mypage"
+import { FaqPage, InquiryPage, ServiceGuidePage } from "./support"
+import { LoginPage, RegisterPage, ForgotPasswordPage } from "./auth"
 
 type ViewMode = "list" | "grid" | "map"
-type ActiveTab = "home" | "dashboard" | "search" | "analysis" | "favorites" | "notifications" | "profile" | "registry-analysis" | "chat"
+type ActiveTab =
+  | "home" | "dashboard" | "search" | "analysis" | "favorites" | "notifications" | "profile" | "registry-analysis" | "chat"
+  // 홈 서브메뉴
+  | "service-intro" | "notices" | "new-auctions" | "upcoming-auctions"
+  // 경매 검색 서브메뉴
+  | "auction-calendar" | "auction-results" | "court-search" | "location-search" | "special-properties"
+  // 공매 검색 서브메뉴
+  | "public-sale-search" | "public-sale-calendar" | "public-sale-results"
+  // 통합 검색
+  | "combined-search"
+  // 지도 검색
+  | "auction-map" | "public-sale-map" | "combined-map"
+  // NPL
+  | "npl-search" | "npl-exchange"
+  // 마이페이지
+  | "recent-views" | "payment-history" | "coupons"
+  // 고객센터
+  | "faq" | "inquiry" | "service-guide"
+  // 회원
+  | "login" | "register" | "forgot-password"
 
 interface ActiveFilter {
   id: string
@@ -172,24 +202,74 @@ export function UnifiedWorkspace() {
             </button>
 
             <nav className="hidden md:flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={activeTab === "dashboard" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}
-                onClick={() => setActiveTab("dashboard")}
-              >
-                <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                대시보드
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={activeTab === "search" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}
-                onClick={() => setActiveTab("search")}
-              >
-                <Search className="w-4 h-4 mr-1.5" />
-                매물 탐색
-              </Button>
+              {/* 경매 검색 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <Gavel className="w-4 h-4 mr-1.5" />
+                    경매
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setActiveTab("search")}>경매 종합 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("auction-calendar")}>경매 일정</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("auction-results")}>입찰 결과</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("court-search")}>법원 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("location-search")}>소재지 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("special-properties")}>특수물건</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 공매 검색 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <Store className="w-4 h-4 mr-1.5" />
+                    공매
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setActiveTab("public-sale-search")}>공매 종합 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("public-sale-calendar")}>공매 일정</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("public-sale-results")}>공매 입찰 결과</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 통합/지도 검색 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <Map className="w-4 h-4 mr-1.5" />
+                    지도
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setActiveTab("combined-search")}>경·공매 통합 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => { setActiveTab("search"); setViewMode("map"); }}>경매 물건 지도</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("public-sale-map")}>공매 물건 지도</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("combined-map")}>경·공매 통합 지도</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* NPL */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <Banknote className="w-4 h-4 mr-1.5" />
+                    NPL
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setActiveTab("npl-search")}>NPL 검색</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab("npl-exchange")}>NPL 거래소</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* AI 분석/상담 */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -211,6 +291,8 @@ export function UnifiedWorkspace() {
                 <MessageSquare className="w-4 h-4 mr-1.5" />
                 AI 상담
               </Button>
+
+              {/* 관심 목록 */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -218,7 +300,7 @@ export function UnifiedWorkspace() {
                 onClick={() => setActiveTab("favorites")}
               >
                 <Heart className="w-4 h-4 mr-1.5" />
-                관심 목록
+                관심
                 {favorites.length > 0 && (
                   <Badge variant="secondary" className="ml-1.5 h-5 px-1.5">
                     {favorites.length}
@@ -261,14 +343,45 @@ export function UnifiedWorkspace() {
               <Bell className="w-5 h-5" />
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-9 w-9 hidden md:inline-flex ${activeTab === "profile" ? "bg-secondary" : ""}`}
-              onClick={() => setActiveTab("profile")}
-            >
-              <User className="w-5 h-5" />
-            </Button>
+            {/* 마이페이지/고객센터/프로필 드롭다운 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 hidden md:inline-flex"
+                >
+                  <User className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setActiveTab("profile")}>
+                  <User className="w-4 h-4 mr-2" />내 정보 수정
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("recent-views")}>
+                  <FileText className="w-4 h-4 mr-2" />최근 열람 물건
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("payment-history")}>
+                  <Banknote className="w-4 h-4 mr-2" />결제 내역
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("coupons")}>
+                  <Banknote className="w-4 h-4 mr-2" />쿠폰함
+                </DropdownMenuItem>
+                <div className="border-t my-1" />
+                <DropdownMenuItem onClick={() => setActiveTab("notices")}>
+                  <Bell className="w-4 h-4 mr-2" />공지사항
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("faq")}>
+                  <HelpCircle className="w-4 h-4 mr-2" />FAQ
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("inquiry")}>
+                  <MessageSquare className="w-4 h-4 mr-2" />1:1 문의
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("service-guide")}>
+                  <FileText className="w-4 h-4 mr-2" />서비스 이용 안내
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -422,6 +535,73 @@ export function UnifiedWorkspace() {
           <NotificationsPage />
         ) : activeTab === "profile" ? (
           <ProfilePage />
+        ) : activeTab === "service-intro" ? (
+          <ServiceIntroPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "notices" ? (
+          <NoticesPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "new-auctions" ? (
+          <NewAuctionsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} onSelectProperty={(id) => {
+            const property = auctionProperties.find((p) => p.id === id)
+            if (property) handlePropertyClick(property)
+          }} />
+        ) : activeTab === "upcoming-auctions" ? (
+          <UpcomingAuctionsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} onSelectProperty={(id) => {
+            const property = auctionProperties.find((p) => p.id === id)
+            if (property) handlePropertyClick(property)
+          }} />
+        ) : activeTab === "auction-calendar" ? (
+          <AuctionCalendarPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} onSelectProperty={(id) => {
+            const property = auctionProperties.find((p) => p.id === id)
+            if (property) handlePropertyClick(property)
+          }} />
+        ) : activeTab === "auction-results" ? (
+          <AuctionResultsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} onSelectProperty={(id) => {
+            const property = auctionProperties.find((p) => p.id === id)
+            if (property) handlePropertyClick(property)
+          }} />
+        ) : activeTab === "court-search" ? (
+          <CourtSearchPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "location-search" ? (
+          <LocationSearchPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "special-properties" ? (
+          <SpecialPropertiesPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} onSelectProperty={(id) => {
+            const property = auctionProperties.find((p) => p.id === id)
+            if (property) handlePropertyClick(property)
+          }} />
+        ) : activeTab === "public-sale-search" ? (
+          <PublicSaleSearchPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "public-sale-calendar" ? (
+          <PublicSaleCalendarPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "public-sale-results" ? (
+          <PublicSaleResultsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "combined-search" ? (
+          <CombinedSearchPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "public-sale-map" ? (
+          <PublicSaleMapPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "combined-map" ? (
+          <CombinedMapPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "npl-search" ? (
+          <NplSearchPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "npl-exchange" ? (
+          <NplExchangePage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "recent-views" ? (
+          <RecentViewsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "payment-history" ? (
+          <PaymentHistoryPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "coupons" ? (
+          <CouponsPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "faq" ? (
+          <FaqPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "inquiry" ? (
+          <InquiryPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "service-guide" ? (
+          <ServiceGuidePage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "login" ? (
+          <LoginPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "register" ? (
+          <RegisterPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+        ) : activeTab === "forgot-password" ? (
+          <ForgotPasswordPage onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
         ) : viewMode === "map" ? (
           <div className={`flex ${isMobile ? "h-[calc(100vh-140px)]" : "h-[calc(100vh-120px)]"}`}>
             <div className="flex-1">

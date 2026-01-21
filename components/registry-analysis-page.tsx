@@ -187,7 +187,7 @@ export function RegistryAnalysisPage({ fileName, onBack, onFindSimilar }: Regist
 
   if (isLoading) {
     return (
-      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center space-y-6">
             <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
@@ -213,9 +213,9 @@ export function RegistryAnalysisPage({ fileName, onBack, onFindSimilar }: Regist
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-background">
+    <div className="flex-1 flex flex-col">
       {/* Header */}
-      <div className="sticky top-[64px] z-20 bg-card border-b">
+      <div className="sticky top-0 z-20 bg-card border-b">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -241,7 +241,8 @@ export function RegistryAnalysisPage({ fileName, onBack, onFindSimilar }: Regist
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* 안전점수 & 요약 */}
         <div className="grid md:grid-cols-3 gap-4">
           {/* 안전점수 카드 */}
@@ -729,6 +730,7 @@ export function RegistryAnalysisPage({ fileName, onBack, onFindSimilar }: Regist
             <TrendingUp className="w-4 h-4 mr-2" />
             비슷한 매물 찾아보기
           </Button>
+        </div>
         </div>
       </div>
     </div>
