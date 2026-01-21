@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  Upload,
   FileText,
   Sparkles,
   ArrowRight,
@@ -16,11 +15,22 @@ import {
   Shield,
   Search,
   ChevronRight,
-  CheckCircle,
   Zap,
   Target,
-  X,
+  MapPin,
   Loader2,
+  Home,
+  Flame,
+  CalendarPlus,
+  Calendar,
+  BarChart3,
+  Coins,
+  PieChart,
+  Landmark,
+  Lock,
+  Clock,
+  ShieldCheck,
+  RefreshCw,
 } from "lucide-react"
 import { auctionProperties, type AuctionProperty } from "@/lib/mock-data"
 
@@ -31,50 +41,63 @@ interface LandingPageProps {
   onFileUpload: (fileName: string) => void
 }
 
+// 목업 주소 검색 결과
+const mockAddressResults = [
+  { id: "1", address: "서울특별시 강남구 역삼동 123-45", type: "아파트", detail: "역삼자이 101동 1201호" },
+  { id: "2", address: "서울특별시 강남구 역삼동 234-56", type: "오피스텔", detail: "역삼역 센트럴 오피스텔 503호" },
+  { id: "3", address: "서울특별시 서초구 서초동 345-67", type: "아파트", detail: "서초래미안 202동 801호" },
+  { id: "4", address: "서울특별시 송파구 잠실동 456-78", type: "아파트", detail: "잠실엘스 305동 1502호" },
+  { id: "5", address: "경기도 성남시 분당구 정자동 567-89", type: "아파트", detail: "정자역 푸르지오 108동 903호" },
+]
+
 export function LandingPage({ onNavigate, onSelectProperty, onStartChat, onFileUpload }: LandingPageProps) {
-  const [dragActive, setDragActive] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisComplete, setAnalysisComplete] = useState(false)
+  const [addressQuery, setAddressQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<typeof mockAddressResults>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showResults, setShowResults] = useState(false)
   const [chatInput, setChatInput] = useState("")
+  const searchRef = useRef<HTMLDivElement>(null)
 
   const topRecommended = auctionProperties.filter((p) => p.riskScore >= 80).slice(0, 3)
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
+  // 주소 검색 처리
+  useEffect(() => {
+    if (addressQuery.trim().length >= 2) {
+      setIsSearching(true)
+      setShowResults(true)
+      // 목업: 실제로는 API 호출
+      const timer = setTimeout(() => {
+        const filtered = mockAddressResults.filter(
+          (item) =>
+            item.address.includes(addressQuery) ||
+            item.detail.includes(addressQuery)
+        )
+        setSearchResults(filtered.length > 0 ? filtered : mockAddressResults.slice(0, 3))
+        setIsSearching(false)
+      }, 300)
+      return () => clearTimeout(timer)
+    } else {
+      setSearchResults([])
+      setShowResults(false)
     }
+  }, [addressQuery])
+
+  // 외부 클릭 시 결과 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
-    }
-  }, [])
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0])
-    }
-  }
-
-  const handleFile = (file: File) => {
-    // 바로 분석 결과 페이지로 이동
-    onFileUpload(file.name)
-  }
-
-  const clearFile = () => {
-    setUploadedFile(null)
-    setIsAnalyzing(false)
-    setAnalysisComplete(false)
+  const handleAddressSelect = (result: typeof mockAddressResults[0]) => {
+    // 선택한 주소로 등기분석 페이지 이동
+    onFileUpload(result.address + " " + result.detail)
+    setShowResults(false)
+    setAddressQuery("")
   }
 
   const handleChatSubmit = (e: React.FormEvent) => {
@@ -115,97 +138,66 @@ export function LandingPage({ onNavigate, onSelectProperty, onStartChat, onFileU
 
           {/* 메인 액션 카드들 */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-            {/* 등기부등본 업로드 */}
+            {/* 주소 검색으로 등기부등본 분석 */}
             <Card className="overflow-hidden">
-              <CardContent className="p-0">
-                <div
-                  className={`relative p-5 md:p-8 transition-colors ${
-                    dragActive
-                      ? "bg-primary/10 border-2 border-dashed border-primary"
-                      : "bg-card"
-                  }`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  {!uploadedFile ? (
-                    <div className="text-center space-y-4">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                        <Upload className="w-8 h-8 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">등기부등본 분석</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          PDF나 이미지를 올리면 AI가 권리관계를 분석해요
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="file-upload">
-                          <Button variant="default" className="cursor-pointer" asChild>
-                            <span>
-                              <FileText className="w-4 h-4 mr-2" />
-                              파일 선택하기
-                            </span>
-                          </Button>
-                        </label>
-                        <input
-                          id="file-upload"
-                          type="file"
-                          className="hidden"
-                          accept=".pdf,.png,.jpg,.jpeg"
-                          onChange={handleFileInput}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          또는 여기로 파일을 끌어다 놓으세요
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <FileText className="w-5 h-5 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">{uploadedFile.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(uploadedFile.size / 1024).toFixed(1)} KB
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={clearFile}>
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
+              <CardContent className="p-5 md:p-8">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+                    <Search className="w-8 h-8 text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-lg">등기부등본 분석</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      주소를 검색하면 등기부등본을 자동으로 조회해요
+                    </p>
+                  </div>
 
-                      {isAnalyzing && (
-                        <div className="flex items-center gap-3 p-4 rounded-lg bg-primary/5">
-                          <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                          <div>
-                            <p className="font-medium text-sm">AI가 분석 중입니다...</p>
-                            <p className="text-xs text-muted-foreground">
-                              권리관계를 파악하고 있어요
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {analysisComplete && (
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-green-600">
-                            <CheckCircle className="w-5 h-5" />
-                            <span className="font-medium">분석 완료!</span>
-                          </div>
-                          <Button className="w-full" onClick={() => onNavigate("analysis")}>
-                            분석 결과 보기
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </div>
+                  {/* 주소 검색 입력 */}
+                  <div className="relative" ref={searchRef}>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="주소 또는 건물명 검색 (예: 역삼동, 잠실엘스)"
+                        value={addressQuery}
+                        onChange={(e) => setAddressQuery(e.target.value)}
+                        className="pl-10 pr-10"
+                        onFocus={() => addressQuery.length >= 2 && setShowResults(true)}
+                      />
+                      {isSearching && (
+                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
                       )}
                     </div>
-                  )}
+
+                    {/* 검색 결과 드롭다운 */}
+                    {showResults && searchResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                        {searchResults.map((result) => (
+                          <button
+                            key={result.id}
+                            onClick={() => handleAddressSelect(result)}
+                            className="w-full px-4 py-3 text-left hover:bg-secondary/50 transition-colors border-b border-border/50 last:border-b-0"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0 mt-0.5">
+                                <Home className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-sm">{result.detail}</p>
+                                <p className="text-xs text-muted-foreground">{result.address}</p>
+                                <Badge variant="secondary" className="mt-1 text-xs">
+                                  {result.type}
+                                </Badge>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center">
+                    검색 후 등기부등본이 자동으로 조회됩니다
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -266,6 +258,121 @@ export function LandingPage({ onNavigate, onSelectProperty, onStartChat, onFileU
               <TrendingUp className="w-4 h-4 mr-2" />
               시장 동향 보기
             </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* 바로가기 섹션 */}
+      <div className="border-t bg-secondary/30 px-3 md:px-4 py-6 md:py-8">
+        <div className="max-w-4xl mx-auto space-y-4">
+          <h2 className="text-base md:text-lg font-semibold text-center">빠른 검색</h2>
+
+          {/* 반값 찬스 - 강조 */}
+          <div className="grid grid-cols-3 gap-2 md:gap-3">
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1.5 p-3 md:p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 hover:border-red-500/40 transition-colors"
+            >
+              <Flame className="w-5 h-5 md:w-6 md:h-6 text-red-500" />
+              <span className="text-xs md:text-sm font-medium text-red-600 dark:text-red-400">반값경매</span>
+            </button>
+            <button
+              onClick={() => onNavigate("public-sale-search")}
+              className="flex flex-col items-center gap-1.5 p-3 md:p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 hover:border-red-500/40 transition-colors"
+            >
+              <Flame className="w-5 h-5 md:w-6 md:h-6 text-red-500" />
+              <span className="text-xs md:text-sm font-medium text-red-600 dark:text-red-400">반값공매</span>
+            </button>
+            <button
+              onClick={() => onNavigate("npl-search")}
+              className="flex flex-col items-center gap-1.5 p-3 md:p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 hover:border-red-500/40 transition-colors"
+            >
+              <Flame className="w-5 h-5 md:w-6 md:h-6 text-red-500" />
+              <span className="text-xs md:text-sm font-medium text-red-600 dark:text-red-400">반값NPL</span>
+            </button>
+          </div>
+
+          {/* 신규/예정 */}
+          <div className="grid grid-cols-4 gap-2 md:gap-3">
+            <button
+              onClick={() => onNavigate("new-auctions")}
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <CalendarPlus className="w-5 h-5 text-primary" />
+              <span className="text-xs font-medium">경매신건</span>
+            </button>
+            <button
+              onClick={() => onNavigate("upcoming-auctions")}
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="text-xs font-medium">예정물건</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <BarChart3 className="w-5 h-5 text-primary" />
+              <span className="text-xs font-medium">최근2주변동</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <Coins className="w-5 h-5 text-primary" />
+              <span className="text-xs font-medium">공시1억이하</span>
+            </button>
+          </div>
+
+          {/* 특수 물건 */}
+          <div className="grid grid-cols-5 gap-2">
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <PieChart className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs">지분경매</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <Landmark className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs">법정지상권</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <Lock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs">유치권</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <Clock className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs">감정1년후</span>
+            </button>
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+            >
+              <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              <span className="text-[10px] md:text-xs">HUG</span>
+            </button>
+          </div>
+
+          {/* 추가 특수 조건 */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => onNavigate("search")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border hover:border-primary/50 transition-colors text-xs md:text-sm text-muted-foreground"
+            >
+              <RefreshCw className="w-3 h-3" />
+              인수조건변경 물건 보기
+              <ChevronRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>

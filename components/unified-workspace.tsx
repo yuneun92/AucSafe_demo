@@ -17,7 +17,6 @@ import {
   Sparkles,
   Bell,
   User,
-  LayoutDashboard,
   Menu,
   Home,
 } from "lucide-react"
@@ -86,6 +85,7 @@ export function UnifiedWorkspace() {
   const [initialChatMessage, setInitialChatMessage] = useState<string | undefined>(undefined)
   const { theme, setTheme } = useTheme()
   const [isMobile, setIsMobile] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // Handle mobile detection after mount to avoid hydration mismatch
   useEffect(() => {
@@ -198,10 +198,21 @@ export function UnifiedWorkspace() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg hidden lg:inline">AucSafe</span>
+              <span className="font-bold text-lg">AucSafe</span>
             </button>
 
-            <nav className="flex items-center gap-1">
+            {/* 햄버거 메뉴 버튼 (작은 화면용) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-9 w-9"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+
+            {/* 데스크탑 네비게이션 (md 이상에서만 표시) */}
+            <nav className="hidden md:flex items-center gap-1">
               {/* 경공매 검색 */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -245,7 +256,7 @@ export function UnifiedWorkspace() {
               </DropdownMenu>
 
               {/* AI 분석/상담 - 보라색 강조 */}
-              <div className="flex items-center gap-0.5 ml-1 px-1 py-0.5 rounded-md bg-violet-500/10 border border-violet-400/30">
+              <div className="flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-400/40">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -258,7 +269,6 @@ export function UnifiedWorkspace() {
                 >
                   <Sparkles className="w-4 h-4 mr-1.5" />
                   AI분석
-                  <Badge className="ml-1.5 h-4 px-1 text-[9px] bg-orange-500 hover:bg-orange-500 text-white border-0">N</Badge>
                 </Button>
                 <Button
                   variant="ghost"
@@ -370,6 +380,111 @@ export function UnifiedWorkspace() {
             </DropdownMenu>
           </div>
         </div>
+
+        {/* 햄버거 메뉴 패널 (작은 화면용) */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-border bg-card">
+            <div className="p-4 space-y-3">
+              {/* 경공매 검색 */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground px-2">경매</p>
+                <div className="grid grid-cols-2 gap-1">
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>
+                    <Gavel className="w-4 h-4 mr-2" />경매 종합 검색
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("auction-calendar"); setMenuOpen(false); }}>
+                    <Calendar className="w-4 h-4 mr-2" />경매 일정
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("auction-results"); setMenuOpen(false); }}>
+                    <TrendingUp className="w-4 h-4 mr-2" />입찰 결과
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("special-properties"); setMenuOpen(false); }}>
+                    <Building2 className="w-4 h-4 mr-2" />특수물건
+                  </Button>
+                </div>
+              </div>
+              <div className="border-t border-border/50" />
+              {/* 공매 */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground px-2">공매</p>
+                <div className="grid grid-cols-2 gap-1">
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("public-sale-search"); setMenuOpen(false); }}>
+                    <Store className="w-4 h-4 mr-2" />공매 종합 검색
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("public-sale-calendar"); setMenuOpen(false); }}>
+                    <Calendar className="w-4 h-4 mr-2" />공매 일정
+                  </Button>
+                </div>
+              </div>
+              <div className="border-t border-border/50" />
+              {/* NPL */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground px-2">NPL</p>
+                <div className="grid grid-cols-2 gap-1">
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("npl-search"); setMenuOpen(false); }}>
+                    <Banknote className="w-4 h-4 mr-2" />NPL 검색
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => { setActiveTab("npl-exchange"); setMenuOpen(false); }}>
+                    <Banknote className="w-4 h-4 mr-2" />NPL 거래소
+                  </Button>
+                </div>
+              </div>
+              <div className="border-t border-border/50" />
+              {/* 특수검색 */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground px-2">특수검색</p>
+                <div className="grid grid-cols-3 gap-1">
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("new-auctions"); setMenuOpen(false); }}>경매신건</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("upcoming-auctions"); setMenuOpen(false); }}>예정물건</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>최근2주변동</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>공시1억이하</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>지분경매</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>법정지상권</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>유치권</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>감정1년후</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>HUG</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>인수조건변경</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("search"); setMenuOpen(false); }}>반값경매</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("public-sale-search"); setMenuOpen(false); }}>반값공매</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-xs px-2" onClick={() => { setActiveTab("npl-search"); setMenuOpen(false); }}>반값NPL</Button>
+                </div>
+              </div>
+              <div className="border-t border-border/50" />
+              {/* AI 분석/상담 */}
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600"
+                  onClick={() => { setActiveTab("analysis"); setMenuOpen(false); }}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />AI분석
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600"
+                  onClick={() => { setInitialChatMessage(undefined); setActiveTab("chat"); setMenuOpen(false); }}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />AI상담
+                </Button>
+              </div>
+              {/* 관심 목록 */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => { setActiveTab("favorites"); setMenuOpen(false); }}
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                관심 목록
+                {favorites.length > 0 && (
+                  <Badge variant="secondary" className="ml-auto">
+                    {favorites.length}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Filter Bar - only show on search tab (not on home) */}
         {activeTab === "search" && activeTab !== "home" && (
