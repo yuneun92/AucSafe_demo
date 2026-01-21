@@ -190,67 +190,42 @@ export function UnifiedWorkspace() {
       <header className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border">
         <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3">
           {/* Logo & Nav */}
-          <div className="flex items-center gap-4 md:gap-6">
+          <div className="flex items-center gap-2 md:gap-4">
             <button
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
               onClick={() => setActiveTab("home")}
             >
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg hidden sm:inline">AucSafe</span>
+              <span className="font-bold text-lg hidden lg:inline">AucSafe</span>
             </button>
 
-            <nav className="hidden md:flex items-center gap-1">
-              {/* 경매 검색 */}
+            <nav className="flex items-center gap-1">
+              {/* 경공매 검색 */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     <Gavel className="w-4 h-4 mr-1.5" />
-                    경매
+                    경공매
                     <ChevronDown className="w-3 h-3 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="start" className="w-48">
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">경매</div>
                   <DropdownMenuItem onClick={() => setActiveTab("search")}>경매 종합 검색</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("auction-calendar")}>경매 일정</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("auction-results")}>입찰 결과</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("court-search")}>법원 검색</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("location-search")}>소재지 검색</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("special-properties")}>특수물건</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* 공매 검색 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                    <Store className="w-4 h-4 mr-1.5" />
-                    공매
-                    <ChevronDown className="w-3 h-3 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                  <div className="my-1 border-t" />
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">공매</div>
                   <DropdownMenuItem onClick={() => setActiveTab("public-sale-search")}>공매 종합 검색</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("public-sale-calendar")}>공매 일정</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setActiveTab("public-sale-results")}>공매 입찰 결과</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* 통합/지도 검색 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                    <Map className="w-4 h-4 mr-1.5" />
-                    지도
-                    <ChevronDown className="w-3 h-3 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                  <div className="my-1 border-t" />
                   <DropdownMenuItem onClick={() => setActiveTab("combined-search")}>경·공매 통합 검색</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setActiveTab("search"); setViewMode("map"); }}>경매 물건 지도</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab("public-sale-map")}>공매 물건 지도</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab("combined-map")}>경·공매 통합 지도</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -269,28 +244,39 @@ export function UnifiedWorkspace() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* AI 분석/상담 */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className={activeTab === "analysis" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}
-                onClick={() => setActiveTab("analysis")}
-              >
-                <Sparkles className="w-4 h-4 mr-1.5" />
-                AI 분석
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={activeTab === "chat" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}
-                onClick={() => {
-                  setInitialChatMessage(undefined)
-                  setActiveTab("chat")
-                }}
-              >
-                <MessageSquare className="w-4 h-4 mr-1.5" />
-                AI 상담
-              </Button>
+              {/* AI 분석/상담 - 보라색 강조 */}
+              <div className="flex items-center gap-0.5 ml-1 px-1 py-0.5 rounded-md bg-violet-500/10 border border-violet-400/30">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 ${
+                    activeTab === "analysis"
+                      ? "text-violet-700 dark:text-violet-300 bg-violet-500/20"
+                      : "text-violet-600 dark:text-violet-400 hover:bg-violet-500/15"
+                  }`}
+                  onClick={() => setActiveTab("analysis")}
+                >
+                  <Sparkles className="w-4 h-4 mr-1.5" />
+                  AI분석
+                  <Badge className="ml-1.5 h-4 px-1 text-[9px] bg-orange-500 hover:bg-orange-500 text-white border-0">N</Badge>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 ${
+                    activeTab === "chat"
+                      ? "text-violet-700 dark:text-violet-300 bg-violet-500/20"
+                      : "text-violet-600 dark:text-violet-400 hover:bg-violet-500/15"
+                  }`}
+                  onClick={() => {
+                    setInitialChatMessage(undefined)
+                    setActiveTab("chat")
+                  }}
+                >
+                  <MessageSquare className="w-4 h-4 mr-1.5" />
+                  AI상담
+                </Button>
+              </div>
 
               {/* 관심 목록 */}
               <Button
@@ -717,7 +703,7 @@ export function UnifiedWorkspace() {
                 setActiveTab("chat")
               }}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-                activeTab === "chat" ? "text-primary" : "text-muted-foreground"
+                activeTab === "chat" ? "text-violet-600 dark:text-violet-400" : "text-violet-500 dark:text-violet-400"
               }`}
             >
               <MessageSquare className="w-5 h-5" />

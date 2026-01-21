@@ -16,7 +16,12 @@ import {
   TrendingUp,
   ExternalLink,
   Landmark,
+  List,
+  Grid3X3,
+  Map,
 } from "lucide-react"
+
+type ViewMode = "list" | "grid" | "map"
 
 interface PublicSaleSearchPageProps {
   onSelectProperty?: (propertyId: string) => void
@@ -108,6 +113,7 @@ export function PublicSaleSearchPage({ onSelectProperty }: PublicSaleSearchPageP
   const [source, setSource] = useState("all")
   const [sortBy, setSortBy] = useState("latest")
   const [favorites, setFavorites] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<ViewMode>("grid")
 
   const filteredSales = mockPublicSales.filter((sale) => {
     const matchesSearch = sale.address.includes(searchQuery) || sale.caseNumber.includes(searchQuery)
@@ -161,143 +167,256 @@ export function PublicSaleSearchPage({ onSelectProperty }: PublicSaleSearchPageP
       {/* 필터 */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="주소, 공매번호로 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4">
+            {/* 상단: 뷰모드 + 검색 */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              {/* 뷰 모드 토글 */}
+              <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="w-4 h-4 mr-1.5" />
+                  리스트
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="w-4 h-4 mr-1.5" />
+                  카드
+                </Button>
+                <Button
+                  variant={viewMode === "map" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 px-3"
+                  onClick={() => setViewMode("map")}
+                >
+                  <Map className="w-4 h-4 mr-1.5" />
+                  지도
+                </Button>
+              </div>
+
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="주소, 공매번호로 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <Select value={source} onValueChange={setSource}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="출처" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="온비드">온비드</SelectItem>
-                <SelectItem value="공매">국세청</SelectItem>
-                <SelectItem value="이카운티">지자체</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="지역" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체 지역</SelectItem>
-                <SelectItem value="서울">서울</SelectItem>
-                <SelectItem value="경기">경기</SelectItem>
-                <SelectItem value="인천">인천</SelectItem>
-                <SelectItem value="부산">부산</SelectItem>
-                <SelectItem value="대구">대구</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={propertyType} onValueChange={setPropertyType}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="물건종류" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="아파트">아파트</SelectItem>
-                <SelectItem value="오피스텔">오피스텔</SelectItem>
-                <SelectItem value="토지">토지</SelectItem>
-                <SelectItem value="상가">상가</SelectItem>
-                <SelectItem value="단독주택">단독주택</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="정렬" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="latest">최신순</SelectItem>
-                <SelectItem value="deadline">마감임박순</SelectItem>
-                <SelectItem value="price-low">가격 낮은순</SelectItem>
-                <SelectItem value="price-high">가격 높은순</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {/* 하단: 필터들 */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <Select value={source} onValueChange={setSource}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="출처" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  <SelectItem value="온비드">온비드</SelectItem>
+                  <SelectItem value="공매">국세청</SelectItem>
+                  <SelectItem value="이카운티">지자체</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={region} onValueChange={setRegion}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="지역" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체 지역</SelectItem>
+                  <SelectItem value="서울">서울</SelectItem>
+                  <SelectItem value="경기">경기</SelectItem>
+                  <SelectItem value="인천">인천</SelectItem>
+                  <SelectItem value="부산">부산</SelectItem>
+                  <SelectItem value="대구">대구</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="물건종류" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  <SelectItem value="아파트">아파트</SelectItem>
+                  <SelectItem value="오피스텔">오피스텔</SelectItem>
+                  <SelectItem value="토지">토지</SelectItem>
+                  <SelectItem value="상가">상가</SelectItem>
+                  <SelectItem value="단독주택">단독주택</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="정렬" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">최신순</SelectItem>
+                  <SelectItem value="deadline">마감임박순</SelectItem>
+                  <SelectItem value="price-low">가격 낮은순</SelectItem>
+                  <SelectItem value="price-high">가격 높은순</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* 물건 목록 */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSales.map((sale) => (
-          <Card
-            key={sale.id}
-            className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer"
-            onClick={() => onSelectProperty?.(sale.id)}
-          >
-            <div className="relative h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-              <Building2 className="h-16 w-16 text-primary/30" />
-              <button
-                className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
-                  favorites.includes(sale.id)
-                    ? "bg-red-500 text-white"
-                    : "bg-background/80 text-foreground hover:bg-background"
-                }`}
-                onClick={(e) => toggleFavorite(sale.id, e)}
-              >
-                <Heart className={`h-4 w-4 ${favorites.includes(sale.id) ? "fill-current" : ""}`} />
-              </button>
-              <div className="absolute top-2 left-2 flex gap-1">
-                <Badge>{sale.propertyType}</Badge>
-                <Badge variant="secondary">{sale.source}</Badge>
-              </div>
-              <div className="absolute bottom-2 left-2 flex gap-1">
-                <Badge
-                  variant={sale.status === "입찰진행중" ? "default" : "secondary"}
-                  className={sale.status === "입찰진행중" ? "bg-green-500" : ""}
-                >
-                  {sale.status}
-                </Badge>
-                {sale.daysLeft <= 7 && (
-                  <Badge variant="destructive">D-{sale.daysLeft}</Badge>
-                )}
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{sale.address}</p>
-                  <p className="text-xs text-muted-foreground">{sale.caseNumber}</p>
-                </div>
-              </div>
+      {viewMode === "map" ? (
+        <Card className="h-[500px] flex items-center justify-center bg-secondary/30">
+          <div className="text-center text-muted-foreground">
+            <Map className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <p className="font-medium">지도 뷰</p>
+            <p className="text-sm mt-1">공매 물건 {filteredSales.length}건이 지도에 표시됩니다</p>
+          </div>
+        </Card>
+      ) : viewMode === "list" ? (
+        <div className="space-y-3">
+          {filteredSales.map((sale) => (
+            <Card
+              key={sale.id}
+              className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer"
+              onClick={() => onSelectProperty?.(sale.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex gap-4">
+                  {/* 썸네일 */}
+                  <div className="relative w-28 h-28 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+                    <Building2 className="h-10 w-10 text-primary/30" />
+                    <div className="absolute top-1.5 left-1.5">
+                      <Badge className="text-xs">{sale.propertyType}</Badge>
+                    </div>
+                  </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">감정가</span>
-                  <span>{(sale.appraisalPrice / 100000000).toFixed(1)}억</span>
+                  {/* 콘텐츠 */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold truncate">{sale.address}</p>
+                        <p className="text-sm text-muted-foreground">{sale.caseNumber} · {sale.source}</p>
+                      </div>
+                      <button
+                        className={`p-2 rounded-full transition-colors shrink-0 ${
+                          favorites.includes(sale.id)
+                            ? "bg-red-500 text-white"
+                            : "bg-secondary text-foreground hover:bg-secondary/80"
+                        }`}
+                        onClick={(e) => toggleFavorite(sale.id, e)}
+                      >
+                        <Heart className={`h-4 w-4 ${favorites.includes(sale.id) ? "fill-current" : ""}`} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">최저입찰가</p>
+                        <p className="font-bold text-primary">{(sale.minimumBidPrice / 100000000).toFixed(1)}억</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">감정가</p>
+                        <p className="font-semibold">{(sale.appraisalPrice / 100000000).toFixed(1)}억</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">매각일</p>
+                        <p className="font-medium text-sm">{sale.saleDate}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant={sale.status === "입찰진행중" ? "default" : "secondary"} className={sale.status === "입찰진행중" ? "bg-green-500" : ""}>
+                        {sale.status}
+                      </Badge>
+                      {sale.daysLeft <= 7 && <Badge variant="destructive">D-{sale.daysLeft}</Badge>}
+                      <Badge variant="outline">{sale.organization}</Badge>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">최저가</span>
-                  <span className="font-bold text-primary">
-                    {(sale.minimumBidPrice / 100000000).toFixed(1)}억
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredSales.map((sale) => (
+            <Card
+              key={sale.id}
+              className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer"
+              onClick={() => onSelectProperty?.(sale.id)}
+            >
+              <div className="relative h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Building2 className="h-16 w-16 text-primary/30" />
+                <button
+                  className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
+                    favorites.includes(sale.id)
+                      ? "bg-red-500 text-white"
+                      : "bg-background/80 text-foreground hover:bg-background"
+                  }`}
+                  onClick={(e) => toggleFavorite(sale.id, e)}
+                >
+                  <Heart className={`h-4 w-4 ${favorites.includes(sale.id) ? "fill-current" : ""}`} />
+                </button>
+                <div className="absolute top-2 left-2 flex gap-1">
+                  <Badge>{sale.propertyType}</Badge>
+                  <Badge variant="secondary">{sale.source}</Badge>
+                </div>
+                <div className="absolute bottom-2 left-2 flex gap-1">
+                  <Badge
+                    variant={sale.status === "입찰진행중" ? "default" : "secondary"}
+                    className={sale.status === "입찰진행중" ? "bg-green-500" : ""}
+                  >
+                    {sale.status}
+                  </Badge>
+                  {sale.daysLeft <= 7 && (
+                    <Badge variant="destructive">D-{sale.daysLeft}</Badge>
+                  )}
+                </div>
+              </div>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{sale.address}</p>
+                    <p className="text-xs text-muted-foreground">{sale.caseNumber}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">감정가</span>
+                    <span>{(sale.appraisalPrice / 100000000).toFixed(1)}억</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">최저가</span>
+                    <span className="font-bold text-primary">
+                      {(sale.minimumBidPrice / 100000000).toFixed(1)}억
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">주관기관</span>
+                    <span className="text-xs">{sale.organization}</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {sale.saleDate}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {sale.location}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">주관기관</span>
-                  <span className="text-xs">{sale.organization}</span>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {sale.saleDate}
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {sale.location}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {filteredSales.length === 0 && (
         <Card>
