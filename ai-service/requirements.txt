@@ -10,7 +10,7 @@ anthropic==0.18.1
 # Vector Store (RAG)
 chromadb==0.4.22
 qdrant-client==1.7.0
-sentence-transformers==2.3.1
+sentence-transformers==5.2.0
 
 # Graph Database (Graph RAG)
 neo4j==5.17.0
